@@ -1,7 +1,8 @@
 import React from "react";
-import { useState } from "react";
-import styles from "./Solicitacao.module.scss";
+import { useState, useEffect } from "react";
+import Api from "../Services/Api";
 
+import styles from "./Solicitacao.module.scss";
 import Motivo from "../assets/motivo.png";
 import Lixeira from "../assets/lixeira.png";
 
@@ -44,7 +45,68 @@ function Solicitacao() {
       despesa,
     };
     setDadosReembolso(dadosReembolso.concat(objetoReembolso));
+    limparCampos();
   };
+
+  //FUNÇÃO PARA LIMPAR OS CAMPOS (INPUTS)
+
+  const limparCampos = () => {
+    setColaborador(""),
+      setEmpresa(""),
+      setnPrestacao(""),
+      setDescricao(""),
+      setData(""),
+      setMotivo(""),
+      setTipoReembolso(""),
+      setCentroCusto(""),
+      setorOrdemInterna(""),
+      setDivisao(""),
+      setPep(""),
+      setMoeda(""),
+      setDistanciaKm(""),
+      setValorKm(""),
+      setValorFaturado(""),
+      setDespesa("");
+  };
+
+  // FUNÇÃO PARA ENVIAR OS DADOS PARA API
+
+  const [foiEnviado, setFoiEnviado] = useState(false); //Serve para saber se o formulário foi enviado
+
+  //Função async(assíncrona) permite que o código espere algo (resposta do servidor) sem travar o resto do programa.
+  const enviarParaAnalise = async () => {
+    try {
+      //aqui colocamos o que queremos "tentar" fazer
+
+      //1º argumento é caminho da rota "/refunds/new" é uma rota no seu backend
+      //2º argumento é o que será enviado: dadosReembolso, os dados do formulário.
+
+      //Faz a requisição POST para o endpoint /refunds/new
+      //Enviando juntos os dados que estão salvos no estado "dadosReembolso"
+      const response = await Api.post("/refunds/new", dadosReembolso);
+      console.log("Resposta da API", response); //Mostra no console a resposta da API
+      alert("Reembolso solicitado com sucesso!"); //Mostra um alerta avisando que deu certo.
+      setFoiEnviado(true); //Ativando o estado "foiEnviado" para true
+    } catch (error) {
+      //Caso dê erro na hora de enviar, ele mostra o erro no console.
+      console.log("Erro ao enviar", error); //Mostra o ero se algo der errado
+    }
+  };
+
+  //HOOK USEEFFECT,  serve para reagir a mudanças nos estados.
+
+  useEffect(() => {
+    if (foiEnviado) {
+      setDadosReembolso([]); //Limpa os dados do formulário, ou seja, zera o estado.
+      setFoiEnviado(false); //foiEnviado volta a ser (false)
+    }
+  }, [foiEnviado]); //Esse efeito só roda quando "foiEnviado" mudar
+
+  //Resumo simplificado:
+  //useState cria variáveis que guardam informações e atualizam a tela.
+  //A função enviarParaAnalise manda os dados pra um servidor (API).
+  // useEffect roda automaticamente quando a variável foiEnviado muda.
+  //Depois que os dados são enviados, ele limpa tudo pra poder começar de novo.
 
   return (
     <>
@@ -210,7 +272,7 @@ function Solicitacao() {
           <div>
             <label htmlFor="faturado"> Val. Faturado </label>
             <input
-              type="text"
+              type="number"
               name="valorFaturado"
               value={valorFaturado}
               onChange={(e) => setValorFaturado(e.target.value)}
@@ -220,7 +282,7 @@ function Solicitacao() {
           <div>
             <label htmlFor="taxa"> Despesa </label>
             <input
-              type="text"
+              type="number"
               name="despesa"
               value={despesa}
               onChange={(e) => setDespesa(e.target.value)}
@@ -232,7 +294,7 @@ function Solicitacao() {
               <img src="" alt="" /> Salvar
             </button>
 
-            <button type="button">
+            <button type="button" onClick={limparCampos}>
               <img src="" alt="" /> Deletar
             </button>
           </div>
@@ -264,12 +326,18 @@ function Solicitacao() {
         <tbody>
           {dadosReembolso.map((item, index) => (
             <tr key={index}>
-              <td>  <img src={Lixeira} alt="" /> </td>
+              <td>
+                {" "}
+                <img src={Lixeira} alt="" />{" "}
+              </td>
               <td>{item.colaborador}</td>
               <td>{item.empresa}</td>
               <td>{item.nPrestacao}</td>
               <td>{item.data}</td>
-              <td> <img src={Motivo} alt="" />  </td>
+              <td>
+                {" "}
+                <img src={Motivo} alt="" />{" "}
+              </td>
               <td>{item.tipoReembolso}</td>
               <td>{item.centroCusto}</td>
               <td>{item.ordemInterna}</td>
@@ -284,12 +352,13 @@ function Solicitacao() {
           ))}
         </tbody>
       </table>
+
+      <button onClick={enviarParaAnalise}> Enviar para análise </button>
     </>
   );
 }
 
 export default Solicitacao;
-
 
 //PASSO A PASSO
 
