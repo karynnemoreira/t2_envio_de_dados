@@ -98,9 +98,17 @@ function Solicitacao() {
   useEffect(() => {
     if (foiEnviado) {
       setDadosReembolso([]); //Limpa os dados do formulário, ou seja, zera o estado.
-      setFoiEnviado(false); //foiEnviado volta a ser (false)
+      setFoiEnviado(false); //foi Enviado volta a ser (false)
     }
   }, [foiEnviado]); //Esse efeito só roda quando "foiEnviado" mudar
+
+
+  //RESUMINDO:
+  //O if (foiEnviado) serve para executar algo somente quando o envio foi concluído.
+  //O estado começa como false, mas vira true quando o envio é feito com sucesso.
+  //O useEffect só roda quando essa variável muda, e por isso o if é necessário para não rodar à toa.
+
+
 
   //Resumo simplificado:
   //useState cria variáveis que guardam informações e atualizam a tela.
